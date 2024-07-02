@@ -26,7 +26,7 @@ async def handle_help(message: types.message):
     await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'")
 
 @dp.message(Command("hi"))
-async def handle_help(message: types.message, command: CommandObject):
+async def handle_hi(message: types.message, command: CommandObject):
     if command.args:
         await message.answer(text="hello, {}".format(command.args))
     else:
