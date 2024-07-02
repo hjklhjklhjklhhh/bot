@@ -4,7 +4,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandObject, CommandStart, Command
 
 # ---------------------------------------------------
 # constants
@@ -19,11 +19,18 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def handle_start(message: types.Message):
-    await message.answer(text="hello, {}".format(message.from_user.full_name))
+    await message.answer(text="welcome, {}".format(message.from_user.full_name))
 
 @dp.message(Command("help"))
-async def handle_help(message: types.Message):
-    await message.answer(text="send any message to echo it back")
+async def handle_help(message: types.message):
+    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'")
+
+@dp.message(Command("hi"))
+async def handle_help(message: types.message, command: CommandObject):
+    if command.args:
+        await message.answer(text="hello, {}".format(command.args))
+    else:
+        await message.answer(text="usage: /hi <name>")
 
 @dp.message()
 async def echo_message(message: types.Message):
