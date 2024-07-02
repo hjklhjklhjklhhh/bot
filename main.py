@@ -26,7 +26,7 @@ async def handle_start(message: types.Message):
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'\nuse '\pick' for a selection dialog")
+    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'\nuse '/pick' for a selection dialog")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
