@@ -27,11 +27,10 @@ async def handle_help(message: types.Message):
 
 @dp.message()
 async def echo_message(message: types.Message):
-    #await bot.send_message(
-    #    chat_id=message.chat_id,
-    #    text="placeholder"
-    #)
-    await message.reply(text=message.text, reply=message)
+    try:
+        await message.send_copy(chat_id=message.chat.id)
+    except TypeError:
+        await message.answer("invalid message")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
