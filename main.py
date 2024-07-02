@@ -5,12 +5,15 @@ import logging
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandObject, CommandStart, Command
+from aiogram.utils import markdown
+from aiogram.enums import ParseMode
 
 # ---------------------------------------------------
 # constants
 BOT_TOKEN = input("input bot token: ")
 if BOT_TOKEN == "":
     raise ValueError("bot token cannot be empty")
+GREET_IMAGE_URL = "https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-12/256/speaking-head.png"
 
 # ---------------------------------------------------
 # code
@@ -19,7 +22,7 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def handle_start(message: types.Message):
-    await message.answer(text="welcome, {}".format(message.from_user.full_name))
+    await message.answer(text=f"{markdown.hide_link(GREET_IMAGE_URL)} welcome {markdown.hbold(message.from_user.full_name)}", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
@@ -28,7 +31,7 @@ async def handle_help(message: types.message):
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
     if command.args:
-        await message.answer(text="hello, {}".format(command.args))
+        await message.answer(text=f"hello, {command.args}")
     else:
         await message.answer(text="usage: /hi <name>")
 
