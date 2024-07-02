@@ -27,10 +27,20 @@ async def handle_help(message: types.Message):
 
 @dp.message()
 async def echo_message(message: types.Message):
-    try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("invalid message")
+    #try:
+    #    await message.send_copy(chat_id=message.chat.id)
+    #except TypeError:
+    #    await message.answer("invalid message")
+    if message.text:
+        await message.reply(text=message.text, entities=message.entities, parse_mode=None)
+    elif message.sticker:
+        await message.reply_sticker(sticker=message.sticker.file_id)
+    elif message.photo:
+        await message.reply_photo(photo=message.photo[0].file_id)
+    elif message.animation:
+        await message.reply_animation(animation=message.animation.file_id)
+    else:
+        await message.reply(text="invalid message")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
