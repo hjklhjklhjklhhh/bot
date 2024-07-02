@@ -26,7 +26,7 @@ async def handle_start(message: types.Message):
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'")
+    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>']\nuse '\pick' for a selection dialog")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -34,6 +34,21 @@ async def handle_hi(message: types.message, command: CommandObject):
         await message.answer(text=f"hello, {command.args}")
     else:
         await message.answer(text="usage: /hi <name>")
+
+@dp.message(Command("pick"))
+async def handle_pick(message: types.message):
+    kb = [
+        [
+            types.KeyboardButton(text="option 1"),
+            types.KeyboardButton(text="option 2")
+        ],
+        [
+            types.KeyboardButton(text="option 3"),
+            types.KeyboardButton(text="option 4")
+        ]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, input_field_placeholder="select an option")
+    await message.answer(text="select an option:", reply_markup=keyboard)
 
 @dp.message()
 async def echo_message(message: types.Message):
