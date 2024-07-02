@@ -31,7 +31,7 @@ async def echo_message(message: types.Message):
     #    chat_id=message.chat_id,
     #    text="placeholder"
     #)
-    await message.answer(text=message.text)
+    await message.reply(text=message.text, reply=message)
 
 async def main():
     logging.basicConfig(level=logging.INFO)
