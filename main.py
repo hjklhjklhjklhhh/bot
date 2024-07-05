@@ -2,13 +2,14 @@
 # modules
 import asyncio
 import logging
+import random
 
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandObject, CommandStart, Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils import markdown
 from aiogram.enums import ParseMode
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 # ---------------------------------------------------
 # constants
@@ -32,7 +33,8 @@ async def handle_help(message: types.message):
     use '/info' for information about the bot
     use '/pick' for an option selector
     use '/picknum' for a number selector
-    use '/pickrequest' for a request selector""")
+    use '/pickrequest' for a request selector
+    use '/random <min> <max> to get a button to send a random number between <min> and <max> (inclusive)""")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -95,6 +97,19 @@ async def handle_pickrequest(message: types.Message):
 
     await message.answer(text="select a request:", reply_markup=builder.as_markup(resize_keyboard=True))
 
+@dp.message(Command("random"))
+async def handle_random(message: types.message, command: CommandObject):
+    if command.args:
+        args = command.args.split()
+        if len(args) == 2:
+            builder = InlineKeyboardBuilder()
+            builder.add(types.InlineKeyboardButton(text="generate", callback_data=args[0] + "," + args[1]))
+            await message.answer(text=f"press the button to get a random number between {args[0]} and {args[1]}", reply_markup=builder.as_markup())
+        else:
+            await message.answer(text="usage: /random <min> <max>")
+    else:
+        await message.answer(text="usage: /random <min> <max>")
+
 @dp.message(F.text.lower().regexp("option [1-4]"))
 async def pick_answer(message: types.Message):
     await message.reply(f"you chose the option {message.text}")
@@ -102,6 +117,11 @@ async def pick_answer(message: types.Message):
 @dp.message(F.text.regexp(r"\b([1-9]|1[0-6])\b"))
 async def picknum_answer(message: types.Message):
     await message.reply(f"you chose the number {message.text}")
+
+@dp.callback_query(F.data.regexp(r"\b\d+,\d+\b"))
+async def random_answer(callback: types.CallbackQuery):
+    vals = callback.data.split(",")
+    await callback.message.answer(str(random.randint(int(vals[0]), int(vals[1]))))
 
 async def main():
     logging.basicConfig(level=logging.INFO)
