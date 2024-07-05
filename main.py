@@ -5,6 +5,7 @@ import logging
 
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandObject, CommandStart, Command
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils import markdown
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
@@ -28,6 +29,7 @@ async def handle_start(message: types.Message):
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
     await message.answer(text="""use '/hi <name>' to print 'hello, <name>'
+    use '/info' for information about the bot
     use '/pick' for an option selector
     use '/picknum' for a number selector
     use '/pickrequest' for a request selector""")
@@ -38,6 +40,13 @@ async def handle_hi(message: types.message, command: CommandObject):
         await message.answer(text=f"hello, {command.args}")
     else:
         await message.answer(text="usage: /hi <name>")
+
+@dp.message(Command("info"))
+async def handle_info(message: types.Message):
+    repo_btn = InlineKeyboardButton(text="GitHub repository", url="https://github.com/hjklhjklhjklhhh/bot")
+    author_btn = InlineKeyboardButton(text="author", url="https://github.com/hjklhjklhjklhhh")
+    markup = InlineKeyboardMarkup(inline_keyboard=[[repo_btn, author_btn]])
+    await message.answer(text="visit the GitHub repo for info", reply_markup=markup)
 
 @dp.message(Command("pick"))
 async def handle_pick(message: types.message):
