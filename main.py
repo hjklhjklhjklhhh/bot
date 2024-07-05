@@ -27,7 +27,10 @@ async def handle_start(message: types.Message):
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer(text="use '/hi <name>' to print 'hello, <name>'\nuse '/pick' for an option selector\nuse '/picknum' for a number selector")
+    await message.answer(text="""use '/hi <name>' to print 'hello, <name>'
+    use '/pick' for an option selector
+    use '/picknum' for a number selector
+    use '/pickrequest' for a request selector""")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -52,12 +55,36 @@ async def handle_pick(message: types.message):
     await message.answer(text="select an option:", reply_markup=keyboard)
 
 @dp.message(Command("picknum"))
-async def reply(message: types.Message):
+async def handle_picknum(message: types.Message):
     builder = ReplyKeyboardBuilder()
     for i in range(1, 17):
         builder.add(types.KeyboardButton(text=str(i)))
     builder.adjust(4)
     await message.answer(text="select a number:", reply_markup=builder.as_markup(resize_keyboard=True))
+
+@dp.message(Command("pickrequest"))
+async def handle_pickrequest(message: types.Message):
+    builder = ReplyKeyboardBuilder()
+
+    builder.row(
+        types.KeyboardButton(text="request location", request_location=True),
+        types.KeyboardButton(text="request contact", request_contact=True)
+    )
+
+    builder.row(
+        types.KeyboardButton(text="request poll", request_poll=types.KeyboardButtonPollType(type="poll"))
+    )
+
+    builder.row(
+        types.KeyboardButton(text="request selection for user", request_user=types.KeyboardButtonRequestUser(request_id=1)),
+        types.KeyboardButton(text="request selection for premium user", request_user=types.KeyboardButtonRequestUser(request_id=2, user_is_premium=True))
+    )
+
+    builder.row(
+        types.KeyboardButton(text="request selection for supergroup with forum", request_chat=types.KeyboardButtonRequestChat(request_id=3, chat_is_channel=False, chat_is_forum=True))
+    )
+
+    await message.answer(text="select a request:", reply_markup=builder.as_markup(resize_keyboard=True))
 
 @dp.message(F.text.lower().regexp("option [1-4]"))
 async def pick_answer(message: types.Message):
