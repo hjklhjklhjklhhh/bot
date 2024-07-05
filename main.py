@@ -50,21 +50,9 @@ async def handle_pick(message: types.message):
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, input_field_placeholder="select an option")
     await message.answer(text="select an option:", reply_markup=keyboard)
 
-@dp.message(F.text.lower() == "option 1")
+@dp.message(F.text.lower().startswith("option "))
 async def btn_answer(message: types.Message):
-    await message.reply("you chose option 1")
-
-@dp.message(F.text.lower() == "option 2")
-async def btn_answer(message: types.Message):
-    await message.reply("you chose option 2")
-
-@dp.message(F.text.lower() == "option 3")
-async def btn_answer(message: types.Message):
-    await message.reply("you chose option 3")
-
-@dp.message(F.text.lower() == "option 4")
-async def btn_answer(message: types.Message):
-    await message.reply("you chose option 4")
+    await message.reply(f"you chose {message.text}")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
