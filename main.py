@@ -3,7 +3,7 @@
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandObject, CommandStart, Command
 from aiogram.utils import markdown
 from aiogram.enums import ParseMode
@@ -22,11 +22,11 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def handle_start(message: types.Message):
-    await message.answer(text=f"{markdown.hide_link(GREET_IMAGE_URL)} welcome {markdown.hbold(message.from_user.full_name)}", parse_mode=ParseMode.HTML)
+    await message.answer(text=f"{markdown.hide_link(GREET_IMAGE_URL)} welcome {markdown.hbold(message.from_user.full_name)}\nuse '/help' for possible commands", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer(text="send any message to echo it back\nuse '/hi <name>' to print 'hello, <name>'\nuse '/pick' for a selection dialog")
+    await message.answer(text="use '/hi <name>' to print 'hello, <name>'\nuse '/pick' for a selection dialog")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -50,22 +50,21 @@ async def handle_pick(message: types.message):
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, input_field_placeholder="select an option")
     await message.answer(text="select an option:", reply_markup=keyboard)
 
-@dp.message()
-async def echo_message(message: types.Message):
-    try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("invalid message")
-    #if message.text:
-    #    await message.reply(text=message.text, entities=message.entities, parse_mode=None)
-    #elif message.sticker:
-    #    await message.reply_sticker(sticker=message.sticker.file_id)
-    #elif message.photo:
-    #    await message.reply_photo(photo=message.photo[0].file_id)
-    #elif message.animation:
-    #    await message.reply_animation(animation=message.animation.file_id)
-    #else:
-    #    await message.reply(text="invalid message")
+@dp.message(F.text.lower() == "option 1")
+async def btn_answer(message: types.Message):
+    await message.reply("you chose option 1")
+
+@dp.message(F.text.lower() == "option 2")
+async def btn_answer(message: types.Message):
+    await message.reply("you chose option 2")
+
+@dp.message(F.text.lower() == "option 3")
+async def btn_answer(message: types.Message):
+    await message.reply("you chose option 3")
+
+@dp.message(F.text.lower() == "option 4")
+async def btn_answer(message: types.Message):
+    await message.reply("you chose option 4")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
