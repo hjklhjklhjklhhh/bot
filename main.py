@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandObject, CommandStart, Command
 from aiogram.utils import markdown
 from aiogram.enums import ParseMode
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 # ---------------------------------------------------
 # constants
@@ -26,7 +27,7 @@ async def handle_start(message: types.Message):
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer(text="use '/hi <name>' to print 'hello, <name>'\nuse '/pick' for a selection dialog")
+    await message.answer(text="use '/hi <name>' to print 'hello, <name>'\nuse '/pick' for an option selector\nuse '/picknum' for a number selector")
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -50,9 +51,21 @@ async def handle_pick(message: types.message):
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, input_field_placeholder="select an option")
     await message.answer(text="select an option:", reply_markup=keyboard)
 
-@dp.message(F.text.lower().startswith("option "))
-async def btn_answer(message: types.Message):
-    await message.reply(f"you chose {message.text}")
+@dp.message(Command("picknum"))
+async def reply(message: types.Message):
+    builder = ReplyKeyboardBuilder()
+    for i in range(1, 17):
+        builder.add(types.KeyboardButton(text=str(i)))
+    builder.adjust(4)
+    await message.answer(text="select a number:", reply_markup=builder.as_markup(resize_keyboard=True))
+
+@dp.message(F.text.lower().regexp("option [1-4]"))
+async def pick_answer(message: types.Message):
+    await message.reply(f"you chose the option {message.text}")
+
+@dp.message(F.text.regexp(r"\b([1-9]|1[0-6])\b"))
+async def picknum_answer(message: types.Message):
+    await message.reply(f"you chose the number {message.text}")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
