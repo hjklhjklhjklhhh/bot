@@ -32,6 +32,9 @@ NEWSAPI_KEY = os.getenv("NEWSAPI_KEY")
 if NEWSAPI_KEY == "":
     raise ValueError("api key cannot be empty")
 
+FAKESTORE_PRODUCTS_URL = 'https://fakestoreapi.com/products'
+FAKESTORE_CATEGORIES_URL = 'https://fakestoreapi.com/products/categories'
+FAKESTORE_PRODUCTS_BY_CATEGORY_URL = 'https://fakestoreapi.com/products/category/{}'
 GREET_IMAGE_URL = "https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-12/256/speaking-head.png"
 
 # ---------------------------------------------------
@@ -39,16 +42,19 @@ GREET_IMAGE_URL = "https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/io
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+def get_categories():
+    return requests.get(FAKESTORE_CATEGORIES_URL).json()
+
 @dp.message(CommandStart())
 async def handle_start(message: types.Message):
     await message.answer(f"{markdown.hide_link(GREET_IMAGE_URL)} welcome {markdown.hbold(message.from_user.full_name)}\nuse '/help' for possible commands", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("help"))
 async def handle_help(message: types.message):
-    await message.answer("""use '/hi <name>' to print 'hello, <name>'
+    await message.answer("""use '/fakestore' to list products from different categories
+    use '/hi <name>' to print 'hello, <name>'
     use '/info' for information about the bot
     use '/news <topic>' for news on <topic>
-    use '/prompt <prompt>' to prompt OpenAI with <prompt>
     use '/pick' for an option selector
     use '/picknum' for a number selector
     use '/pickrequest' for a request selector
@@ -56,6 +62,13 @@ async def handle_help(message: types.message):
     use '/randomword' for a random word
     use '/srandom' to generate a true random number between 0 and 255 (inclusive)
     use '/weather <location>' for weather info on <location>""")
+
+@dp.message(Command("fakestore"))
+async def handle_fakestore(message: types.message):
+    builder = ReplyKeyboardBuilder()
+    for category in get_categories():
+        builder.row(types.KeyboardButton(text=category))
+    await message.answer("select a category:", reply_markup=builder.as_markup(resize_keyboard=True))
 
 @dp.message(Command("hi"))
 async def handle_hi(message: types.message, command: CommandObject):
@@ -237,6 +250,20 @@ async def handle_weather(message: types.Message, command: CommandObject):
             await message.answer("usage: /weather <location>")
     else:
         await message.answer("usage: /weather <location>")
+
+@dp.message(lambda message: message.text in get_categories())
+async def fakestore_answer(message: types.Message):
+    try:
+        r = requests.get(FAKESTORE_PRODUCTS_BY_CATEGORY_URL.format(message.text))
+        data = r.json()
+        for p in data:
+            await message.answer_photo(photo=p['image'],
+                    caption=f"*** product: {p['title']} ***\n"
+                    f"price: {p['price']}\n"
+                    f"description: {p['description']}\n"
+                    f"rating: {p['rating']['rate']}, count: {p['rating']['count']}")
+    except:
+        await message.reply("an error occurred.")
 
 @dp.message(F.text.lower().regexp("option [1-4]"))
 async def pick_answer(message: types.Message):
